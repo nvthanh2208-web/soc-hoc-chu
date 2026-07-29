@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Sò học chữ Việt</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <meta name="theme-color" content="#bfefff">
+  <meta name="application-name" content="Sò học chữ Việt">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Sò học chữ">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <link rel="preload" href="images/a.webp" as="image" type="image/webp">
+
+  <link
+    rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔤</text></svg>"
+  >
+</head>
+
+<body>
+  <main class="app">
+    <!-- Màn hình chính -->
+    <section id="homeScreen" class="screen homeScreen">
+      <h1>Sò học chữ cái</h1>
+
+      <p class="homeDescription">
+        Cùng học và chơi với 29 chữ cái tiếng Việt
+      </p>
+
+      <div class="modeList">
+        <button
+          id="learnModeButton"
+          class="modeButton"
+          type="button"
+        >
+          <span class="modeIcon">📖</span>
+
+          <span>
+            <strong>Sò Học Chữ</strong>
+            <small>
+              Xem chữ, nghe âm và học từ minh họa
+            </small>
+          </span>
+        </button>
+
+        <button
+          id="playModeButton"
+          class="modeButton"
+          type="button"
+        >
+          <span class="modeIcon">🎮</span>
+
+          <span>
+            <strong>Sò Chơi Thử Thách</strong>
+            <small>
+              Nghe và chọn hình đúng
+            </small>
+          </span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Chế độ học -->
+    <section id="learnScreen" class="screen hidden">
+      <div class="container">
+        <header class="header">
+          <button
+            id="homeButton"
+            class="homeButton"
+            type="button"
+          >
+            🏠 Trang chủ
+          </button>
+
+          <div class="progress">
+            <span id="currentNumber">1</span>
+            /
+            <span id="totalNumber">29</span>
+          </div>
+
+          <button
+            id="soundButton"
+            class="soundButton"
+            type="button"
+          >
+            🔊 Sò nghe
+          </button>
+        </header>
+
+        <div class="progressTrack" aria-hidden="true">
+          <div id="progressBar" class="progressBar"></div>
+        </div>
+
+        <h2>Sò học chữ cái</h2>
+
+        <section class="learningCard">
+          <button
+            id="letterButton"
+            class="letter"
+            type="button"
+            aria-label="Sò nghe lại chữ cái"
+          >
+            A
+          </button>
+
+          <div id="smallLetter" class="smallLetter">
+            a
+          </div>
+
+          <div class="illustration">
+            <img
+              id="letterImage"
+              src="images/a.webp"
+              alt="Áo"
+              width="512"
+              height="512"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            >
+          </div>
+
+          <div id="word" class="word">
+            Áo
+          </div>
+        </section>
+
+        <nav
+          class="navigation"
+          aria-label="Điều hướng chữ cái"
+        >
+          <button
+            id="previousButton"
+            class="navButton"
+            type="button"
+          >
+            ← Chữ trước
+          </button>
+
+          <button
+            id="nextButton"
+            class="navButton primary"
+            type="button"
+          >
+            Chữ tiếp theo →
+          </button>
+        </nav>
+
+        <p
+          id="statusMessage"
+          class="statusMessage"
+          aria-live="polite"
+        ></p>
+      </div>
+    </section>
+
+    <!-- Chế độ chơi -->
+    <section id="playScreen" class="screen hidden">
+      <div
+        id="starEffectLayer"
+        class="starEffectLayer"
+        aria-hidden="true"
+      ></div>
+      <div class="playContainer">
+        <header class="playHeader">
+          <button
+            id="playHomeButton"
+            class="homeButton"
+            type="button"
+          >
+            🏠 Trang chủ
+          </button>
+
+          <div class="scoreBox">
+            ⭐ <span id="playScore">0</span>
+          </div>
+
+          <div class="questionCounter">
+            <span id="questionNumber">1</span>
+            /
+            <span id="totalQuestions">10</span>
+          </div>
+        </header>
+
+        <h2>Sò Chơi Thử Thách</h2>
+
+        <p
+          id="playInstruction"
+          class="playInstruction"
+        >
+          Hãy chọn hình đúng
+        </p>
+
+        <button
+          id="playSoundButton"
+          class="playSoundButton"
+          type="button"
+        >
+          🔊 Sò nghe câu hỏi
+        </button>
+
+        <div
+          id="answerGrid"
+          class="answerGrid"
+        ></div>
+
+        <section
+          id="resultPanel"
+          class="resultPanel hidden"
+        >
+          <div class="resultIcon">
+            🏆
+          </div>
+
+          <h3>Sò đã hoàn thành!</h3>
+
+          <p class="resultScoreText">
+            Sò đạt
+            <strong id="resultScore">0</strong>
+            /
+            <strong id="resultTotal">10</strong>
+            ngôi sao
+          </p>
+
+          <div
+            class="resultStars"
+            aria-hidden="true"
+          >
+            ⭐ ⭐ ⭐
+          </div>
+        </section>
+
+        <p
+          id="playFeedback"
+          class="playFeedback"
+          aria-live="polite"
+        ></p>
+
+        <button
+          id="nextQuestionButton"
+          class="nextQuestionButton"
+          type="button"
+          disabled
+        >
+          Câu tiếp theo →
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script src="data/alphabet.js" defer></script>
+  <script src="game.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+"use strict";
+
+const alphabet = [
+  {
+    id: 1,
+    upper: "A",
+    lower: "a",
+    fileCode: "a",
+    word: " Cái áo",
+    image: "images/a.webp",
+    sound: "sounds/a.mp3",
+    category: "nguyen-am",
+    difficulty: 1
+  },
+  {
+    id: 2,
+    upper: "Ă",
+    lower: "ă",
+    fileCode: "aw",
+    word: "Ăn cơm",
+    image: "images/aw.webp",
+    sound: "sounds/aw.mp3",
+    category: "nguyen-am",
+    difficulty: 1
+  },
+  {
+    id: 3,
+    upper: "Â",
+    lower: "â",
+    fileCode: "aa",
+    word: " Cái ấm nước",
+    image: "images/aa.webp",
+    sound: "sounds/aa.mp3",
+    category: "nguyen-am",
+    difficulty: 1
+  },
+  {
+    id: 4,
+    upper: "B",
+    lower: "b",
+    fileCode: "b",
+    word: "Quả bóng",
+    image: "images/b.webp",
+    sound: "sounds/b.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 5,
+    upper: "C",
+    lower: "c",
+    fileCode: "c",
+    word: "Con cá",
+    image: "images/c.webp",
+    sound: "sounds/c.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 6,
+    upper: "D",
+    lower: "d",
+    fileCode: "d",
+    word: "Con dê",
+    image: "images/d.webp",
+    sound: "sounds/d.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 7,
+    upper: "Đ",
+    lower: "đ",
+    fileCode: "dd",
+    word: "Cái bóng đèn",
+    image: "images/dd.webp",
+    sound: "sounds/dd.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 8,
+    upper: "E",
+    lower: "e",
+    fileCode: "e",
+    word: "Em bé",
+    image: "images/e.webp",
+    sound: "sounds/e.mp3",
+    category: "nguyen-am",
+    difficulty: 1
+  },
+  {
+    id: 9,
+    upper: "Ê",
+    lower: "ê",
+    fileCode: "ee",
+    word: "Con ếch",
+    image: "images/ee.webp",
+    sound: "sounds/ee.mp3",
+    category: "nguyen-am",
+    difficulty: 1
+  },
+  {
+    id: 10,
+    upper: "G",
+    lower: "g",
+    fileCode: "g",
+    word: "Con gà",
+    image: "images/g.webp",
+    sound: "sounds/g.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 11,
+    upper: "H",
+    lower: "h",
+    fileCode: "h",
+    word: "Bông hoa",
+    image: "images/h.webp",
+    sound: "sounds/h.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 12,
+    upper: "I",
+    lower: "i",
+    fileCode: "i",
+    word: "Cái máy in",
+    image: "images/i.webp",
+    sound: "sounds/i.mp3",
+    category: "nguyen-am",
+    difficulty: 2
+  },
+  {
+    id: 13,
+    upper: "K",
+    lower: "k",
+    fileCode: "k",
+    word: "Cái kẹo",
+    image: "images/k.webp",
+    sound: "sounds/k.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 14,
+    upper: "L",
+    lower: "l",
+    fileCode: "l",
+    word: "Cái lá cây",
+    image: "images/l.webp",
+    sound: "sounds/l.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 15,
+    upper: "M",
+    lower: "m",
+    fileCode: "m",
+    word: "Con mèo",
+    image: "images/m.webp",
+    sound: "sounds/m.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 16,
+    upper: "N",
+    lower: "n",
+    fileCode: "n",
+    word: "Cái nón",
+    image: "images/n.webp",
+    sound: "sounds/n.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 17,
+    upper: "O",
+    lower: "o",
+    fileCode: "o",
+    word: "Con ong",
+    image: "images/o.webp",
+    sound: "sounds/o.mp3",
+    category: "nguyen-am",
+    difficulty: 1
+  },
+  {
+    id: 18,
+    upper: "Ô",
+    lower: "ô",
+    fileCode: "oo",
+    word: "Cái Ô tô",
+    image: "images/oo.webp",
+    sound: "sounds/oo.mp3",
+    category: "nguyen-am",
+    difficulty: 1
+  },
+  {
+    id: 19,
+    upper: "Ơ",
+    lower: "ơ",
+    fileCode: "ow",
+    word: "Quả ớt",
+    image: "images/ow.webp",
+    sound: "sounds/ow.mp3",
+    category: "nguyen-am",
+    difficulty: 1
+  },
+  {
+    id: 20,
+    upper: "P",
+    lower: "p",
+    fileCode: "p",
+    word: "Quả pin",
+    image: "images/p.webp",
+    sound: "sounds/p.mp3",
+    category: "phu-am",
+    difficulty: 2
+  },
+  {
+    id: 21,
+    upper: "Q",
+    lower: "q",
+    fileCode: "q",
+    word: "Cây quất",
+    image: "images/q.webp",
+    sound: "sounds/q.mp3",
+    category: "phu-am",
+    difficulty: 2
+  },
+  {
+    id: 22,
+    upper: "R",
+    lower: "r",
+    fileCode: "r",
+    word: "Con rùa",
+    image: "images/r.webp",
+    sound: "sounds/r.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 23,
+    upper: "S",
+    lower: "s",
+    fileCode: "s",
+    word: "Con sư tử",
+    image: "images/s.webp",
+    sound: "sounds/s.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 24,
+    upper: "T",
+    lower: "t",
+    fileCode: "t",
+    word: "Quả táo",
+    image: "images/t.webp",
+    sound: "sounds/t.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 25,
+    upper: "U",
+    lower: "u",
+    fileCode: "u",
+    word: "Cái ủng",
+    image: "images/u.webp",
+    sound: "sounds/u.mp3",
+    category: "nguyen-am",
+    difficulty: 1
+  },
+  {
+    id: 26,
+    upper: "Ư",
+    lower: "ư",
+    fileCode: "uw",
+    word: "Bé ươm cây",
+    image: "images/uw.webp",
+    sound: "sounds/uw.mp3",
+    category: "nguyen-am",
+    difficulty: 2
+  },
+  {
+    id: 27,
+    upper: "V",
+    lower: "v",
+    fileCode: "v",
+    word: "Con voi",
+    image: "images/v.webp",
+    sound: "sounds/v.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 28,
+    upper: "X",
+    lower: "x",
+    fileCode: "x",
+    word: "Xe Ô tô",
+    image: "images/x.webp",
+    sound: "sounds/x.mp3",
+    category: "phu-am",
+    difficulty: 1
+  },
+  {
+    id: 29,
+    upper: "Y",
+    lower: "y",
+    fileCode: "y",
+    word: "Cô Y tá",
+    image: "images/y.webp",
+    sound: "sounds/y.mp3",
+    category: "nguyen-am",
+    difficulty: 2
+  }
+];
