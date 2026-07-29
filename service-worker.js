@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "so-hoc-chu-v3";
+const CACHE_NAME = "so-hoc-chu-v4";
 
 const LETTER_CODES = [
   "a", "aw", "aa", "b", "c", "d", "dd", "e", "ee", "g",
