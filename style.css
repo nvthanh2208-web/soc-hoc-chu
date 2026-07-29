@@ -800,3 +800,201 @@ img {
     transition-duration: 0.01ms !important;
   }
 }
+/* =========================================================
+   TỐI ƯU CHẾ ĐỘ HỌC TRÊN IPHONE VÀ ĐIỆN THOẠI MÀN HÌNH THẤP
+   Đặt ở cuối cùng của style.css
+========================================================= */
+
+@media (max-width: 430px) {
+  #learnScreen {
+    min-height: 100svh;
+  }
+
+  #learnScreen .container {
+    width: 100%;
+    min-height: 100svh;
+
+    padding:
+      max(8px, env(safe-area-inset-top))
+      12px
+      max(10px, env(safe-area-inset-bottom));
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header dùng lưới:
+     Trang chủ và tiến độ ở hàng đầu,
+     nút nghe ở hàng thứ hai */
+  #learnScreen .header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "home progress"
+      "sound sound";
+
+    gap: 8px;
+    width: 100%;
+  }
+
+  #learnScreen .homeButton {
+    grid-area: home;
+    justify-self: start;
+
+    padding: 10px 13px;
+    font-size: 17px;
+  }
+
+  #learnScreen .progress {
+    grid-area: progress;
+    justify-self: end;
+
+    padding: 10px 15px;
+    font-size: 19px;
+  }
+
+  #learnScreen .soundButton {
+    grid-area: sound;
+    justify-self: center;
+
+    padding: 10px 18px;
+    font-size: 18px;
+  }
+
+  #learnScreen .progressTrack {
+    height: 9px;
+    margin-top: 9px;
+  }
+
+  #learnScreen h2 {
+    margin: 10px 0 4px;
+    font-size: 27px;
+    line-height: 1.1;
+  }
+
+  #learnScreen .learningCard {
+    padding: 3px 8px;
+  }
+
+  #learnScreen .letter {
+    width: 120px;
+    height: 120px;
+
+    font-size: 76px;
+  }
+
+  #learnScreen .smallLetter {
+    margin-top: 2px;
+    font-size: 40px;
+    line-height: 1;
+  }
+
+  #learnScreen .illustration {
+    width: 220px;
+    height: 220px;
+
+    margin-top: 7px;
+    padding: 8px;
+    border-radius: 20px;
+  }
+
+  #learnScreen .illustration img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  #learnScreen .word {
+    margin-top: 5px;
+    font-size: 28px;
+    line-height: 1.1;
+  }
+
+  /* Hai nút điều hướng nằm ngang để tiết kiệm chiều cao */
+  #learnScreen .navigation {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 8px;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  #learnScreen .navButton {
+    width: 100%;
+    min-width: 0;
+
+    padding: 12px 7px;
+    border-radius: 16px;
+
+    font-size: 17px;
+    white-space: nowrap;
+  }
+
+  #learnScreen .statusMessage {
+    min-height: 20px;
+    margin: 6px 0 0;
+
+    font-size: 15px;
+    line-height: 1.2;
+  }
+}
+
+/* Điện thoại rất thấp hoặc khi mở bằng trình duyệt có thanh công cụ */
+@media (max-width: 430px) and (max-height: 780px) {
+  #learnScreen .header {
+    gap: 6px;
+  }
+
+  #learnScreen .homeButton,
+  #learnScreen .progress,
+  #learnScreen .soundButton {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  #learnScreen h2 {
+    margin-top: 7px;
+    font-size: 24px;
+  }
+
+  #learnScreen .letter {
+    width: 105px;
+    height: 105px;
+    font-size: 68px;
+  }
+
+  #learnScreen .smallLetter {
+    font-size: 36px;
+  }
+
+  #learnScreen .illustration {
+    width: 190px;
+    height: 190px;
+    margin-top: 5px;
+  }
+
+  #learnScreen .word {
+    font-size: 25px;
+  }
+
+  #learnScreen .navigation {
+    margin-top: 7px;
+  }
+
+  #learnScreen .navButton {
+    padding: 10px 5px;
+    font-size: 15px;
+  }
+
+  #learnScreen .statusMessage {
+    margin-top: 4px;
+    font-size: 14px;
+  }
+}
+
+/* Điện thoại rất hẹp: cho phép hai nút xếp dọc */
+@media (max-width: 360px) {
+  #learnScreen .navigation {
+    grid-template-columns: 1fr;
+  }
+}
