@@ -193,7 +193,7 @@ const alphabet = [
     upper: "Ô",
     lower: "ô",
     fileCode: "oo",
-    word: "Cái Ô tô",
+    word: "Cái Ô",
     image: "images/oo.webp",
     sound: "sounds/oo.mp3",
     category: "nguyen-am",
