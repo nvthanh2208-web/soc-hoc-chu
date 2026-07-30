@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "soc-hoc-chu-v13-fast-audio";
+const CACHE_NAME = "soc-hoc-chu-v14-choice-audio";
 
 const LETTER_CODES = [
   "a", "aw", "aa", "b", "c", "d", "dd", "e", "ee", "g",
