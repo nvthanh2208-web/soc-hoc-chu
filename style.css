@@ -998,3 +998,46 @@ img {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   PHÁO HOA CHÚC MỪNG KẾT THÚC TRÒ CHƠI
+========================================================= */
+.fireworksLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fireworkParticle {
+  position: absolute;
+  display: block;
+  font-size: clamp(22px, 5vw, 44px);
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  animation: fireworkBurst 1.15s ease-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes fireworkBurst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.25) rotate(0deg);
+  }
+  15% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform:
+      translate(
+        calc(-50% + var(--firework-x)),
+        calc(-50% + var(--firework-y))
+      )
+      scale(1.25)
+      rotate(240deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fireworkParticle { animation-duration: 0.35s; }
+}

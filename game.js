@@ -260,6 +260,10 @@ function createQuestion() {
   preloadAudio(currentCorrectItem.sound);
   currentChoices.forEach((item) => preloadAudio(item.choiceSound || item.sound));
   preloadNextQuestionAssets();
+
+  // Tự động đọc câu hỏi ngay khi mở trò chơi hoặc chuyển sang câu mới.
+  // Hàm createQuestion được gọi từ thao tác bấm của người dùng nên hoạt động tốt trên iPhone.
+  playQuestionSound({ automatic: true });
 }
 
 function renderAnswerChoices() {
@@ -339,13 +343,20 @@ async function checkPlayAnswer(button, selectedItem) {
   });
 }
 
-function playQuestionSound() {
-  if (!currentCorrectItem || answerBusy) return;
+function playQuestionSound({ automatic = false } = {}) {
+  if (!currentCorrectItem || answerBusy || questionAnswered) return;
+
   stopActiveAudio();
   const sequenceId = audioSequence;
   playFeedback.textContent = `Đang phát âm chữ ${currentCorrectItem.upper}`;
+
   playAudio(getAudio(currentCorrectItem.sound), sequenceId).then((ok) => {
-    if (ok && !questionAnswered) playFeedback.textContent = "Sóc hãy chọn hình đúng nhé!";
+    if (ok && !questionAnswered) {
+      playFeedback.textContent = "Sóc hãy chọn hình đúng nhé!";
+    } else if (!ok && automatic && !questionAnswered) {
+      // Safari có thể chặn tự phát trong một số trường hợp; nút Sóc nghe vẫn dùng được.
+      playFeedback.textContent = "Bấm Sóc nghe câu hỏi nếu chưa nghe rõ nhé!";
+    }
   });
 }
 
@@ -387,6 +398,45 @@ function goToNextQuestion() {
   createQuestion();
 }
 
+function createFireworks(duration = 4500) {
+  const oldLayer = document.querySelector(".fireworksLayer");
+  if (oldLayer) oldLayer.remove();
+
+  const layer = document.createElement("div");
+  layer.className = "fireworksLayer";
+  layer.setAttribute("aria-hidden", "true");
+  document.body.appendChild(layer);
+
+  const symbols = ["⭐", "✨", "🎉", "🎊"];
+  const launchBurst = () => {
+    const centerX = 10 + Math.random() * 80;
+    const centerY = 12 + Math.random() * 55;
+
+    for (let index = 0; index < 16; index += 1) {
+      const particle = document.createElement("span");
+      particle.className = "fireworkParticle";
+      particle.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+
+      const angle = (Math.PI * 2 * index) / 16 + Math.random() * 0.25;
+      const distance = 70 + Math.random() * 150;
+      particle.style.left = `${centerX}%`;
+      particle.style.top = `${centerY}%`;
+      particle.style.setProperty("--firework-x", `${Math.cos(angle) * distance}px`);
+      particle.style.setProperty("--firework-y", `${Math.sin(angle) * distance}px`);
+      particle.style.animationDelay = `${Math.random() * 90}ms`;
+      layer.appendChild(particle);
+      particle.addEventListener("animationend", () => particle.remove(), { once: true });
+    }
+  };
+
+  launchBurst();
+  const intervalId = window.setInterval(launchBurst, 520);
+  window.setTimeout(() => {
+    window.clearInterval(intervalId);
+    window.setTimeout(() => layer.remove(), 1300);
+  }, duration);
+}
+
 function showPlayResult() {
   stopActiveAudio();
   answerGrid.replaceChildren();
@@ -400,6 +450,11 @@ function showPlayResult() {
   nextQuestionButton.disabled = false;
   nextQuestionButton.textContent = "Chơi lại ↻";
   questionAnswered = true;
+
+  // Khôi phục hiệu ứng chúc mừng và âm thanh tán dương khi kết thúc.
+  createFireworks(4500);
+  const sequenceId = audioSequence;
+  playAudio(correctSound, sequenceId);
 }
 
 function getResultMessage(score) {
