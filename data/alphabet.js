@@ -9,6 +9,7 @@ const alphabet = [
     word: " Cái áo",
     image: "images/a.webp",
     sound: "sounds/a.mp3",
+    choiceSound: "sounds/choices/a.mp3",
     category: "nguyen-am",
     difficulty: 1
   },
@@ -20,6 +21,7 @@ const alphabet = [
     word: "Ăn cơm",
     image: "images/aw.webp",
     sound: "sounds/aw.mp3",
+    choiceSound: "sounds/choices/aw.mp3",
     category: "nguyen-am",
     difficulty: 1
   },
@@ -31,6 +33,7 @@ const alphabet = [
     word: " Cái ấm nước",
     image: "images/aa.webp",
     sound: "sounds/aa.mp3",
+    choiceSound: "sounds/choices/aa.mp3",
     category: "nguyen-am",
     difficulty: 1
   },
@@ -42,6 +45,7 @@ const alphabet = [
     word: "Quả bóng",
     image: "images/b.webp",
     sound: "sounds/b.mp3",
+    choiceSound: "sounds/choices/b.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -53,6 +57,7 @@ const alphabet = [
     word: "Con cá",
     image: "images/c.webp",
     sound: "sounds/c.mp3",
+    choiceSound: "sounds/choices/c.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -64,6 +69,7 @@ const alphabet = [
     word: "Con dê",
     image: "images/d.webp",
     sound: "sounds/d.mp3",
+    choiceSound: "sounds/choices/d.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -75,6 +81,7 @@ const alphabet = [
     word: "Cái bóng đèn",
     image: "images/dd.webp",
     sound: "sounds/dd.mp3",
+    choiceSound: "sounds/choices/dd.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -86,6 +93,7 @@ const alphabet = [
     word: "Em bé",
     image: "images/e.webp",
     sound: "sounds/e.mp3",
+    choiceSound: "sounds/choices/e.mp3",
     category: "nguyen-am",
     difficulty: 1
   },
@@ -97,6 +105,7 @@ const alphabet = [
     word: "Con ếch",
     image: "images/ee.webp",
     sound: "sounds/ee.mp3",
+    choiceSound: "sounds/choices/ee.mp3",
     category: "nguyen-am",
     difficulty: 1
   },
@@ -108,6 +117,7 @@ const alphabet = [
     word: "Con gà",
     image: "images/g.webp",
     sound: "sounds/g.mp3",
+    choiceSound: "sounds/choices/g.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -119,6 +129,7 @@ const alphabet = [
     word: "Bông hoa",
     image: "images/h.webp",
     sound: "sounds/h.mp3",
+    choiceSound: "sounds/choices/h.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -130,6 +141,7 @@ const alphabet = [
     word: "Cái máy in",
     image: "images/i.webp",
     sound: "sounds/i.mp3",
+    choiceSound: "sounds/choices/i.mp3",
     category: "nguyen-am",
     difficulty: 2
   },
@@ -141,6 +153,7 @@ const alphabet = [
     word: "Cái kẹo",
     image: "images/k.webp",
     sound: "sounds/k.mp3",
+    choiceSound: "sounds/choices/k.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -152,6 +165,7 @@ const alphabet = [
     word: "Cái lá cây",
     image: "images/l.webp",
     sound: "sounds/l.mp3",
+    choiceSound: "sounds/choices/l.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -163,6 +177,7 @@ const alphabet = [
     word: "Con mèo",
     image: "images/m.webp",
     sound: "sounds/m.mp3",
+    choiceSound: "sounds/choices/m.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -174,6 +189,7 @@ const alphabet = [
     word: "Cái nón",
     image: "images/n.webp",
     sound: "sounds/n.mp3",
+    choiceSound: "sounds/choices/n.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -185,6 +201,7 @@ const alphabet = [
     word: "Con ong",
     image: "images/o.webp",
     sound: "sounds/o.mp3",
+    choiceSound: "sounds/choices/o.mp3",
     category: "nguyen-am",
     difficulty: 1
   },
@@ -196,6 +213,7 @@ const alphabet = [
     word: "Cái Ô tô",
     image: "images/oo.webp",
     sound: "sounds/oo.mp3",
+    choiceSound: "sounds/choices/oo.mp3",
     category: "nguyen-am",
     difficulty: 1
   },
@@ -207,6 +225,7 @@ const alphabet = [
     word: "Quả ớt",
     image: "images/ow.webp",
     sound: "sounds/ow.mp3",
+    choiceSound: "sounds/choices/ow.mp3",
     category: "nguyen-am",
     difficulty: 1
   },
@@ -218,6 +237,7 @@ const alphabet = [
     word: "Quả pin",
     image: "images/p.webp",
     sound: "sounds/p.mp3",
+    choiceSound: "sounds/choices/p.mp3",
     category: "phu-am",
     difficulty: 2
   },
@@ -229,6 +249,7 @@ const alphabet = [
     word: "Cây quất",
     image: "images/q.webp",
     sound: "sounds/q.mp3",
+    choiceSound: "sounds/choices/q.mp3",
     category: "phu-am",
     difficulty: 2
   },
@@ -240,6 +261,7 @@ const alphabet = [
     word: "Con rùa",
     image: "images/r.webp",
     sound: "sounds/r.mp3",
+    choiceSound: "sounds/choices/r.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -251,6 +273,7 @@ const alphabet = [
     word: "Con sư tử",
     image: "images/s.webp",
     sound: "sounds/s.mp3",
+    choiceSound: "sounds/choices/s.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -262,6 +285,7 @@ const alphabet = [
     word: "Quả táo",
     image: "images/t.webp",
     sound: "sounds/t.mp3",
+    choiceSound: "sounds/choices/t.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -273,6 +297,7 @@ const alphabet = [
     word: "Cái ủng",
     image: "images/u.webp",
     sound: "sounds/u.mp3",
+    choiceSound: "sounds/choices/u.mp3",
     category: "nguyen-am",
     difficulty: 1
   },
@@ -284,6 +309,7 @@ const alphabet = [
     word: "Bé ươm cây",
     image: "images/uw.webp",
     sound: "sounds/uw.mp3",
+    choiceSound: "sounds/choices/uw.mp3",
     category: "nguyen-am",
     difficulty: 2
   },
@@ -295,6 +321,7 @@ const alphabet = [
     word: "Con voi",
     image: "images/v.webp",
     sound: "sounds/v.mp3",
+    choiceSound: "sounds/choices/v.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -306,6 +333,7 @@ const alphabet = [
     word: "Xe ô tô",
     image: "images/x.webp",
     sound: "sounds/x.mp3",
+    choiceSound: "sounds/choices/x.mp3",
     category: "phu-am",
     difficulty: 1
   },
@@ -317,6 +345,7 @@ const alphabet = [
     word: "Cô Y tá",
     image: "images/y.webp",
     sound: "sounds/y.mp3",
+    choiceSound: "sounds/choices/y.mp3",
     category: "nguyen-am",
     difficulty: 2
   }

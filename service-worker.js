@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "soc-hoc-chu-v12";
+const CACHE_NAME = "soc-hoc-chu-v13-fast-audio";
 
 const LETTER_CODES = [
   "a", "aw", "aa", "b", "c", "d", "dd", "e", "ee", "g",
@@ -19,171 +19,112 @@ const CORE_ASSETS = [
   "./icons/icon-512.png"
 ];
 
-const IMAGE_ASSETS = LETTER_CODES.map(
-  (code) => `./images/${code}.webp`
-);
-
-const AUDIO_ASSETS = [
-  ...LETTER_CODES.map((code) => `./sounds/${code}.mp3`),
+const IMAGE_ASSETS = LETTER_CODES.map((code) => `./images/${code}.webp`);
+const QUICK_AUDIO_ASSETS = [
+  ...LETTER_CODES.map((code) => `./sounds/choices/${code}.mp3`),
   "./sounds/correct.mp3",
   "./sounds/wrong.mp3"
 ];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    (async () => {
-      const cache = await caches.open(CACHE_NAME);
-
-      // Tài nguyên giao diện và hình ảnh phải được lưu đầy đủ.
-      await cache.addAll([...CORE_ASSETS, ...IMAGE_ASSETS]);
-
-      // Audio được tải riêng để phản hồi HTTP 206 không làm hỏng toàn bộ cài đặt.
-      const audioResults = await Promise.allSettled(
-        AUDIO_ASSETS.map(async (url) => {
-          const response = await fetch(
-            new Request(url, { cache: "reload" })
-          );
-
-          if (response.status !== 200) {
-            console.warn(`Bỏ qua cache audio ${url}: HTTP ${response.status}`);
-            return;
-          }
-
-          await cache.put(url, response);
-        })
-      );
-
-      audioResults.forEach((result) => {
-        if (result.status === "rejected") {
-          console.warn("Không thể cache một file âm thanh:", result.reason);
-        }
-      });
-
-      await self.skipWaiting();
-    })()
+async function cacheFilesIndividually(cache, urls) {
+  await Promise.allSettled(
+    urls.map(async (url) => {
+      const response = await fetch(new Request(url, { cache: "reload" }));
+      if (response.ok && response.status === 200) {
+        await cache.put(url, response);
+      }
+    })
   );
+}
+
+self.addEventListener("install", (event) => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.addAll(CORE_ASSETS);
+    await cacheFilesIndividually(cache, [...IMAGE_ASSETS, ...QUICK_AUDIO_ASSETS]);
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    (async () => {
-      const cacheNames = await caches.keys();
-
-      await Promise.all(
-        cacheNames
-          .filter((cacheName) => cacheName !== CACHE_NAME)
-          .map((cacheName) => caches.delete(cacheName))
-      );
-
-      await self.clients.claim();
-    })()
-  );
+  event.waitUntil((async () => {
+    const names = await caches.keys();
+    await Promise.all(
+      names.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name))
+    );
+    await self.clients.claim();
+  })());
 });
 
-async function handleRangeRequest(request) {
-  const cachedResponse = await caches.match(request.url);
+async function rangeResponse(request, cachedResponse) {
+  const range = request.headers.get("range");
+  if (!range || !cachedResponse) return cachedResponse || fetch(request);
 
-  if (!cachedResponse) {
-    return fetch(request);
+  const match = /^bytes=(\d+)-(\d*)$/i.exec(range);
+  if (!match) return cachedResponse;
+
+  const buffer = await cachedResponse.arrayBuffer();
+  const size = buffer.byteLength;
+  const start = Number(match[1]);
+  const end = Math.min(match[2] ? Number(match[2]) : size - 1, size - 1);
+
+  if (!Number.isFinite(start) || !Number.isFinite(end) || start > end || start >= size) {
+    return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${size}` } });
   }
 
-  const rangeHeader = request.headers.get("range");
-
-  if (!rangeHeader) {
-    return cachedResponse;
-  }
-
-  const rangeMatch = /^bytes=(\d+)-(\d*)$/i.exec(rangeHeader);
-
-  if (!rangeMatch) {
-    return cachedResponse;
-  }
-
-  const fullBuffer = await cachedResponse.arrayBuffer();
-  const fileSize = fullBuffer.byteLength;
-  const start = Number(rangeMatch[1]);
-  const requestedEnd = rangeMatch[2]
-    ? Number(rangeMatch[2])
-    : fileSize - 1;
-  const end = Math.min(requestedEnd, fileSize - 1);
-
-  if (
-    Number.isNaN(start) ||
-    Number.isNaN(end) ||
-    start > end ||
-    start >= fileSize
-  ) {
-    return new Response(null, {
-      status: 416,
-      headers: {
-        "Content-Range": `bytes */${fileSize}`
-      }
-    });
-  }
-
-  const slicedBuffer = fullBuffer.slice(start, end + 1);
+  const slice = buffer.slice(start, end + 1);
   const headers = new Headers(cachedResponse.headers);
-
-  headers.set("Content-Range", `bytes ${start}-${end}/${fileSize}`);
-  headers.set("Content-Length", String(slicedBuffer.byteLength));
+  headers.set("Content-Range", `bytes ${start}-${end}/${size}`);
+  headers.set("Content-Length", String(slice.byteLength));
   headers.set("Accept-Ranges", "bytes");
 
-  return new Response(slicedBuffer, {
-    status: 206,
-    statusText: "Partial Content",
-    headers
-  });
+  return new Response(slice, { status: 206, statusText: "Partial Content", headers });
+}
+
+async function cacheFirst(request) {
+  const cached = await caches.match(request, { ignoreSearch: true });
+  if (cached) return cached;
+
+  const response = await fetch(request);
+  if (response.ok && response.status === 200) {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, response.clone());
+  }
+  return response;
 }
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-
-  if (request.method !== "GET") {
-    return;
-  }
+  if (request.method !== "GET") return;
 
   const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
 
-  if (url.origin !== self.location.origin) {
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request).catch(() => caches.match("./index.html"))
+    );
     return;
   }
 
-  const isAudio = url.pathname.includes("/sounds/");
-  const hasRange = request.headers.has("range");
+  const isQuickAudio = url.pathname.includes("/sounds/choices/") ||
+    url.pathname.endsWith("/sounds/correct.mp3") ||
+    url.pathname.endsWith("/sounds/wrong.mp3");
 
-  if (isAudio && hasRange) {
-    event.respondWith(handleRangeRequest(request));
+  if (isQuickAudio && request.headers.has("range")) {
+    event.respondWith(
+      caches.match(request.url).then((cached) => rangeResponse(request, cached))
+    );
     return;
   }
 
-  event.respondWith(
-    (async () => {
-      const cachedResponse = await caches.match(request);
+  if (isQuickAudio || url.pathname.includes("/images/") ||
+      url.pathname.endsWith(".css") || url.pathname.endsWith(".js") ||
+      url.pathname.endsWith(".json") || url.pathname.includes("/icons/")) {
+    event.respondWith(cacheFirst(request));
+    return;
+  }
 
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      try {
-        const networkResponse = await fetch(request);
-
-        if (networkResponse.status === 200) {
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put(request, networkResponse.clone());
-        }
-
-        return networkResponse;
-      } catch (error) {
-        if (request.mode === "navigate") {
-          const fallback = await caches.match("./index.html");
-
-          if (fallback) {
-            return fallback;
-          }
-        }
-
-        throw error;
-      }
-    })()
-  );
+  // File học chữ dài: tải khi cần, không làm chậm cài đặt PWA.
+  event.respondWith(fetch(request).catch(() => caches.match(request)));
 });

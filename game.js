@@ -1,269 +1,138 @@
 "use strict";
 
-/* =========================================================
-   THAM CHIẾU GIAO DIỆN
-========================================================= */
+const byId = (id) => document.getElementById(id);
 
-const homeScreen = document.getElementById("homeScreen");
-const learnScreen = document.getElementById("learnScreen");
-const playScreen = document.getElementById("playScreen");
-
-const learnModeButton = document.getElementById("learnModeButton");
-const playModeButton = document.getElementById("playModeButton");
-const homeButton = document.getElementById("homeButton");
-const playHomeButton = document.getElementById("playHomeButton");
-
-const currentNumberElement = document.getElementById("currentNumber");
-const totalNumberElement = document.getElementById("totalNumber");
-const letterButton = document.getElementById("letterButton");
-const smallLetterElement = document.getElementById("smallLetter");
-const letterImage = document.getElementById("letterImage");
-const wordElement = document.getElementById("word");
-const soundButton = document.getElementById("soundButton");
-const previousButton = document.getElementById("previousButton");
-const nextButton = document.getElementById("nextButton");
-const statusMessage = document.getElementById("statusMessage");
-const progressBar = document.getElementById("progressBar");
+const homeScreen = byId("homeScreen");
+const learnScreen = byId("learnScreen");
+const playScreen = byId("playScreen");
+const learnModeButton = byId("learnModeButton");
+const playModeButton = byId("playModeButton");
+const homeButton = byId("homeButton");
+const playHomeButton = byId("playHomeButton");
+const currentNumberElement = byId("currentNumber");
+const totalNumberElement = byId("totalNumber");
+const letterButton = byId("letterButton");
+const smallLetterElement = byId("smallLetter");
+const letterImage = byId("letterImage");
+const wordElement = byId("word");
+const soundButton = byId("soundButton");
+const previousButton = byId("previousButton");
+const nextButton = byId("nextButton");
+const statusMessage = byId("statusMessage");
+const progressBar = byId("progressBar");
 const learningCard = document.querySelector(".learningCard");
-
-const playScoreElement = document.getElementById("playScore");
-const questionNumberElement = document.getElementById("questionNumber");
-const totalQuestionsElement = document.getElementById("totalQuestions");
-const playInstructionElement = document.getElementById("playInstruction");
-const playSoundButton = document.getElementById("playSoundButton");
-const answerGrid = document.getElementById("answerGrid");
-const playFeedback = document.getElementById("playFeedback");
-const nextQuestionButton = document.getElementById("nextQuestionButton");
-const resultPanel = document.getElementById("resultPanel");
-const resultScore = document.getElementById("resultScore");
-const resultTotal = document.getElementById("resultTotal");
-const starEffectLayer = document.getElementById("starEffectLayer");
-
-/* =========================================================
-   TRẠNG THÁI CHUNG
-========================================================= */
+const playScoreElement = byId("playScore");
+const questionNumberElement = byId("questionNumber");
+const totalQuestionsElement = byId("totalQuestions");
+const playInstructionElement = byId("playInstruction");
+const playSoundButton = byId("playSoundButton");
+const answerGrid = byId("answerGrid");
+const playFeedback = byId("playFeedback");
+const nextQuestionButton = byId("nextQuestionButton");
+const resultPanel = byId("resultPanel");
+const resultScore = byId("resultScore");
+const resultTotal = byId("resultTotal");
+const starEffectLayer = byId("starEffectLayer");
 
 const TOTAL_QUESTIONS = 10;
 const ANSWER_COUNT = 4;
+const AUDIO_GAP_MS = 70;
 
 let currentIndex = 0;
-let currentAudio = null;
-
 let playScore = 0;
 let currentQuestionNumber = 1;
 let currentCorrectItem = null;
 let currentChoices = [];
 let playQuestionPool = [];
 let questionAnswered = false;
-let isProcessingAnswer = false;
-let audioSequenceId = 0;
+let answerBusy = false;
+let activeAudio = null;
+let audioSequence = 0;
 
-/* =========================================================
-   ÂM THANH
-========================================================= */
+const audioCache = new Map();
 
-const correctSound = new Audio("sounds/correct.mp3");
-const wrongSound = new Audio("sounds/wrong.mp3");
-
-[correctSound, wrongSound].forEach((audio) => {
-  audio.preload = "auto";
-  audio.volume = 1;
-  audio.load();
-});
-
-function stopCurrentAudio() {
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    currentAudio = null;
+function getAudio(src) {
+  if (!src) return null;
+  if (!audioCache.has(src)) {
+    const audio = new Audio(src);
+    audio.preload = "auto";
+    audio.volume = 1;
+    audioCache.set(src, audio);
   }
-
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
+  return audioCache.get(src);
 }
 
-function wait(milliseconds) {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, milliseconds);
-  });
+const correctSound = getAudio("sounds/correct.mp3");
+const wrongSound = getAudio("sounds/wrong.mp3");
+
+function stopActiveAudio() {
+  audioSequence += 1;
+  if (!activeAudio) return;
+  activeAudio.pause();
+  activeAudio.currentTime = 0;
+  activeAudio = null;
 }
 
-function playAudioSource(source) {
+function playAudio(audio, sequenceId = audioSequence) {
   return new Promise((resolve) => {
-    if (!source) {
+    if (!audio || sequenceId !== audioSequence) {
       resolve(false);
       return;
     }
 
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
+    if (activeAudio && activeAudio !== audio) {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
     }
 
-    const audio = typeof source === "string"
-      ? new Audio(source)
-      : source;
-
-    currentAudio = audio;
-    audio.preload = "auto";
-    audio.volume = 1;
+    activeAudio = audio;
+    audio.pause();
     audio.currentTime = 0;
 
-    let completed = false;
-
-    const finish = (success) => {
-      if (completed) {
-        return;
-      }
-
-      completed = true;
+    let finished = false;
+    const done = (ok = true) => {
+      if (finished) return;
+      finished = true;
       audio.removeEventListener("ended", onEnded);
       audio.removeEventListener("error", onError);
-      audio.removeEventListener("abort", onError);
-
-      if (currentAudio === audio) {
-        currentAudio = null;
-      }
-
-      resolve(success);
+      if (activeAudio === audio) activeAudio = null;
+      resolve(ok && sequenceId === audioSequence);
     };
-
-    const onEnded = () => finish(true);
-    const onError = () => finish(false);
+    const onEnded = () => done(true);
+    const onError = () => done(false);
 
     audio.addEventListener("ended", onEnded, { once: true });
     audio.addEventListener("error", onError, { once: true });
-    audio.addEventListener("abort", onError, { once: true });
-
-    audio.play().catch(() => finish(false));
+    const promise = audio.play();
+    if (promise) promise.catch(() => done(false));
   });
 }
 
-function speakPraise(text) {
+function wait(ms, sequenceId) {
   return new Promise((resolve) => {
-    if (!("speechSynthesis" in window) || !text) {
-      resolve(false);
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "vi-VN";
-    utterance.rate = 0.92;
-    utterance.pitch = 1.08;
-    utterance.volume = 1;
-
-    const voices = window.speechSynthesis.getVoices();
-    const vietnameseVoice = voices.find(
-      (voice) => voice.lang === "vi-VN"
-    ) || voices.find(
-      (voice) => voice.lang.toLowerCase().startsWith("vi")
-    );
-
-    if (vietnameseVoice) {
-      utterance.voice = vietnameseVoice;
-    }
-
-    let completed = false;
-
-    const finish = (success) => {
-      if (completed) {
-        return;
-      }
-
-      completed = true;
-      resolve(success);
-    };
-
-    utterance.onend = () => finish(true);
-    utterance.onerror = () => finish(false);
-
-    window.speechSynthesis.speak(utterance);
+    window.setTimeout(() => resolve(sequenceId === audioSequence), ms);
   });
 }
 
-/* =========================================================
-   HIỆU ỨNG
-========================================================= */
-
-function createStarEffect(button) {
-  const buttonRect = button.getBoundingClientRect();
-  const centerX = buttonRect.left + buttonRect.width / 2;
-  const centerY = buttonRect.top + buttonRect.height / 2;
-
-  for (let index = 0; index < 6; index += 1) {
-    const star = document.createElement("div");
-    star.className = "flyingStar";
-    star.textContent = "⭐";
-    star.style.left = `${centerX + (Math.random() - 0.5) * 150}px`;
-    star.style.top = `${centerY + (Math.random() - 0.5) * 45}px`;
-    star.style.animationDelay = `${index * 0.07}s`;
-    starEffectLayer.appendChild(star);
-
-    window.setTimeout(() => star.remove(), 1500);
-  }
+async function playFeedbackSequence(item, isCorrect, sequenceId) {
+  const choiceAudio = getAudio(item.choiceSound || item.sound);
+  await playAudio(choiceAudio, sequenceId);
+  if (sequenceId !== audioSequence) return;
+  await wait(AUDIO_GAP_MS, sequenceId);
+  if (sequenceId !== audioSequence) return;
+  await playAudio(isCorrect ? correctSound : wrongSound, sequenceId);
 }
 
-function createFireworks(duration = 4600) {
-  const oldLayer = document.querySelector(".fireworksLayer");
-  oldLayer?.remove();
-
-  const layer = document.createElement("div");
-  layer.className = "fireworksLayer";
-  layer.setAttribute("aria-hidden", "true");
-  document.body.appendChild(layer);
-
-  const symbols = ["⭐", "✨", "🎉", "🎊"];
-
-  const launchBurst = () => {
-    const centerX = 12 + Math.random() * 76;
-    const centerY = 10 + Math.random() * 55;
-
-    for (let index = 0; index < 15; index += 1) {
-      const particle = document.createElement("span");
-      particle.className = "fireworkParticle";
-      particle.textContent = symbols[
-        Math.floor(Math.random() * symbols.length)
-      ];
-
-      const angle = (Math.PI * 2 * index) / 15 + Math.random() * 0.28;
-      const distance = 70 + Math.random() * 145;
-
-      particle.style.left = `${centerX}%`;
-      particle.style.top = `${centerY}%`;
-      particle.style.setProperty(
-        "--firework-x",
-        `${Math.cos(angle) * distance}px`
-      );
-      particle.style.setProperty(
-        "--firework-y",
-        `${Math.sin(angle) * distance}px`
-      );
-      particle.style.animationDelay = `${Math.random() * 90}ms`;
-
-      layer.appendChild(particle);
-      particle.addEventListener(
-        "animationend",
-        () => particle.remove(),
-        { once: true }
-      );
-    }
-  };
-
-  launchBurst();
-  const intervalId = window.setInterval(launchBurst, 520);
-
-  window.setTimeout(() => {
-    window.clearInterval(intervalId);
-    window.setTimeout(() => layer.remove(), 1300);
-  }, duration);
+function preloadAudio(src) {
+  const audio = getAudio(src);
+  if (audio) audio.load();
 }
 
-/* =========================================================
-   ĐIỀU HƯỚNG MÀN HÌNH
-========================================================= */
+function preloadImage(src) {
+  const image = new Image();
+  image.decoding = "async";
+  image.src = src;
+}
 
 function showScreen(screen) {
   homeScreen.classList.add("hidden");
@@ -273,30 +142,17 @@ function showScreen(screen) {
 }
 
 function returnHome() {
-  audioSequenceId += 1;
-  stopCurrentAudio();
-  isProcessingAnswer = false;
+  stopActiveAudio();
+  answerBusy = false;
   showScreen(homeScreen);
 }
-
-/* =========================================================
-   CHẾ ĐỘ HỌC
-========================================================= */
 
 function getCurrentLetter() {
   return alphabet[currentIndex];
 }
 
-function openLearnMode() {
-  audioSequenceId += 1;
-  stopCurrentAudio();
-  showScreen(learnScreen);
-  renderCurrentLetter();
-}
-
 function renderCurrentLetter() {
   const item = getCurrentLetter();
-
   currentNumberElement.textContent = String(currentIndex + 1);
   totalNumberElement.textContent = String(alphabet.length);
   letterButton.textContent = item.upper;
@@ -304,80 +160,53 @@ function renderCurrentLetter() {
   letterImage.src = item.image;
   letterImage.alt = item.word.trim();
   wordElement.textContent = item.word.trim();
-
   previousButton.disabled = currentIndex === 0;
-
   const isLastLetter = currentIndex === alphabet.length - 1;
   nextButton.disabled = false;
-  nextButton.textContent = isLastLetter
-    ? "Học lại từ đầu ↻"
-    : "Chữ tiếp theo →";
-
+  nextButton.textContent = isLastLetter ? "Học lại từ đầu ↻" : "Chữ tiếp theo →";
   statusMessage.textContent = `Đang học chữ ${item.upper}`;
   document.title = `${item.upper} - Sóc học chữ cái`;
-
-  const progressPercent = ((currentIndex + 1) / alphabet.length) * 100;
-  progressBar.style.width = `${progressPercent}%`;
+  progressBar.style.width = `${((currentIndex + 1) / alphabet.length) * 100}%`;
 
   learningCard.classList.remove("is-changing");
   void learningCard.offsetWidth;
   learningCard.classList.add("is-changing");
 
   [currentIndex - 1, currentIndex + 1].forEach((index) => {
-    if (index >= 0 && index < alphabet.length) {
-      const image = new Image();
-      image.src = alphabet[index].image;
-    }
+    if (index >= 0 && index < alphabet.length) preloadImage(alphabet[index].image);
   });
 }
 
-async function playCurrentSound() {
+function playCurrentSound() {
   const item = getCurrentLetter();
-  audioSequenceId += 1;
-  stopCurrentAudio();
-
+  stopActiveAudio();
+  const sequenceId = audioSequence;
+  const audio = getAudio(item.sound);
   statusMessage.textContent = `Đang phát âm chữ ${item.upper}`;
-  const played = await playAudioSource(item.sound);
-
-  statusMessage.textContent = played
-    ? `${item.upper} như ${item.word.trim()}`
-    : `Không thể phát âm thanh chữ ${item.upper}`;
+  playAudio(audio, sequenceId).then((ok) => {
+    if (ok) statusMessage.textContent = `${item.upper} như ${item.word.trim()}`;
+  });
 }
 
 function showPreviousLetter() {
-  if (currentIndex <= 0) {
-    return;
-  }
-
+  if (currentIndex <= 0) return;
   currentIndex -= 1;
   renderCurrentLetter();
   playCurrentSound();
 }
 
 function showNextLetter() {
-  currentIndex = currentIndex === alphabet.length - 1
-    ? 0
-    : currentIndex + 1;
-
+  currentIndex = currentIndex === alphabet.length - 1 ? 0 : currentIndex + 1;
   renderCurrentLetter();
   playCurrentSound();
 }
 
-/* =========================================================
-   CHẾ ĐỘ CHƠI
-========================================================= */
-
 function shuffleArray(items) {
   const result = [...items];
-
   for (let index = result.length - 1; index > 0; index -= 1) {
     const randomIndex = Math.floor(Math.random() * (index + 1));
-    [result[index], result[randomIndex]] = [
-      result[randomIndex],
-      result[index]
-    ];
+    [result[index], result[randomIndex]] = [result[randomIndex], result[index]];
   }
-
   return result;
 }
 
@@ -385,62 +214,57 @@ function prepareQuestionPool() {
   playQuestionPool = shuffleArray(alphabet).slice(0, TOTAL_QUESTIONS);
 }
 
-function openPlayMode() {
-  audioSequenceId += 1;
-  stopCurrentAudio();
-  showScreen(playScreen);
+function openLearnMode() {
+  stopActiveAudio();
+  showScreen(learnScreen);
+  renderCurrentLetter();
+}
 
+function openPlayMode() {
+  stopActiveAudio();
+  showScreen(playScreen);
   playScore = 0;
   currentQuestionNumber = 1;
   currentCorrectItem = null;
   currentChoices = [];
   questionAnswered = false;
-  isProcessingAnswer = false;
-
+  answerBusy = false;
   playSoundButton.disabled = false;
   nextQuestionButton.textContent = "Câu tiếp theo →";
-
   prepareQuestionPool();
   createQuestion();
 }
 
 function createQuestion() {
-  audioSequenceId += 1;
-  stopCurrentAudio();
-
+  stopActiveAudio();
   questionAnswered = false;
-  isProcessingAnswer = false;
-  playFeedback.textContent = "";
+  answerBusy = false;
+  playFeedback.textContent = "Sóc hãy chọn hình đúng nhé!";
   nextQuestionButton.disabled = true;
   nextQuestionButton.textContent = "Câu tiếp theo →";
-  playSoundButton.disabled = false;
-
   resultPanel.classList.add("hidden");
   answerGrid.classList.remove("hidden");
 
   currentCorrectItem = playQuestionPool[currentQuestionNumber - 1];
-
   const wrongChoices = shuffleArray(
     alphabet.filter((item) => item.id !== currentCorrectItem.id)
   ).slice(0, ANSWER_COUNT - 1);
-
   currentChoices = shuffleArray([currentCorrectItem, ...wrongChoices]);
 
   playScoreElement.textContent = String(playScore);
   questionNumberElement.textContent = String(currentQuestionNumber);
   totalQuestionsElement.textContent = String(TOTAL_QUESTIONS);
-  playInstructionElement.textContent =
-    `Hãy chọn hình minh họa cho chữ ${currentCorrectItem.upper}`;
-
+  playInstructionElement.textContent = `Hãy chọn hình minh họa cho chữ ${currentCorrectItem.upper}`;
   renderAnswerChoices();
 
-  window.setTimeout(() => {
-    playQuestionSound();
-  }, 250);
+  preloadAudio(currentCorrectItem.sound);
+  currentChoices.forEach((item) => preloadAudio(item.choiceSound || item.sound));
+  preloadNextQuestionAssets();
 }
 
 function renderAnswerChoices() {
-  answerGrid.innerHTML = "";
+  answerGrid.replaceChildren();
+  const fragment = document.createDocumentFragment();
 
   currentChoices.forEach((item) => {
     const button = document.createElement("button");
@@ -455,7 +279,7 @@ function renderAnswerChoices() {
     image.alt = item.word.trim();
     image.width = 512;
     image.height = 512;
-    image.loading = "lazy";
+    image.loading = "eager";
     image.decoding = "async";
 
     const label = document.createElement("span");
@@ -463,13 +287,11 @@ function renderAnswerChoices() {
 
     imageWrap.appendChild(image);
     button.append(imageWrap, label);
-
-    button.addEventListener("click", () => {
-      handlePlayAnswer(button, item);
-    });
-
-    answerGrid.appendChild(button);
+    button.addEventListener("click", () => checkPlayAnswer(button, item));
+    fragment.appendChild(button);
   });
+
+  answerGrid.appendChild(fragment);
 }
 
 function setAnswerCardsDisabled(disabled) {
@@ -478,109 +300,83 @@ function setAnswerCardsDisabled(disabled) {
   });
 }
 
-async function playQuestionSound() {
-  if (!currentCorrectItem || isProcessingAnswer || questionAnswered) {
-    return;
-  }
+async function checkPlayAnswer(button, selectedItem) {
+  if (questionAnswered || answerBusy) return;
 
-  const sequenceId = ++audioSequenceId;
-  isProcessingAnswer = true;
+  answerBusy = true;
   setAnswerCardsDisabled(true);
-  playSoundButton.disabled = true;
-  playFeedback.textContent = `Đang phát âm chữ ${currentCorrectItem.upper}`;
-
-  const played = await playAudioSource(currentCorrectItem.sound);
-
-  if (sequenceId !== audioSequenceId) {
-    return;
-  }
-
-  playFeedback.textContent = played
-    ? "Sóc hãy chọn hình đúng nhé!"
-    : "Không thể phát âm thanh câu hỏi.";
-
-  setAnswerCardsDisabled(false);
-  playSoundButton.disabled = false;
-  isProcessingAnswer = false;
-}
-
-async function handlePlayAnswer(button, selectedItem) {
-  if (questionAnswered || isProcessingAnswer || !currentCorrectItem) {
-    return;
-  }
-
-  const sequenceId = ++audioSequenceId;
+  stopActiveAudio();
+  const sequenceId = audioSequence;
   const isCorrect = selectedItem.id === currentCorrectItem.id;
-
-  isProcessingAnswer = true;
-  setAnswerCardsDisabled(true);
-  playSoundButton.disabled = true;
-  button.classList.add("is-speaking");
-  playFeedback.textContent = `Đang phát âm chữ ${selectedItem.upper}`;
-
-  await playAudioSource(selectedItem.sound);
-  await wait(170);
-
-  button.classList.remove("is-speaking");
-
-  if (sequenceId !== audioSequenceId) {
-    return;
-  }
 
   if (!isCorrect) {
     button.classList.add("wrong");
-    playFeedback.textContent =
-      `${selectedItem.upper} chưa đúng. Sóc thử lại nhé!`;
-
-    await playAudioSource(wrongSound);
-
-    if (sequenceId !== audioSequenceId) {
-      return;
-    }
-
-    await wait(180);
+    playFeedback.textContent = `${selectedItem.upper} chưa đúng. Sóc thử lại nhé!`;
+    await playFeedbackSequence(selectedItem, false, sequenceId);
     button.classList.remove("wrong");
-    setAnswerCardsDisabled(false);
-    playSoundButton.disabled = false;
-    isProcessingAnswer = false;
+    if (!questionAnswered) setAnswerCardsDisabled(false);
+    answerBusy = false;
     return;
   }
 
   questionAnswered = true;
   playScore += 1;
   playScoreElement.textContent = String(playScore);
-
   button.classList.add("correct");
   createStarEffect(button);
-  playFeedback.textContent =
-    `Sóc chọn đúng rồi! ${currentCorrectItem.upper} như ${currentCorrectItem.word.trim()}.`;
+  playFeedback.textContent = `Sóc chọn đúng rồi! ${currentCorrectItem.upper} như ${currentCorrectItem.word.trim()}.`;
 
-  await speakPraise("Giỏi quá! Bé chọn đúng rồi!");
-  await wait(140);
-
-  if (sequenceId !== audioSequenceId) {
-    return;
-  }
-
-  await playAudioSource(correctSound);
-
-  if (sequenceId !== audioSequenceId) {
-    return;
-  }
-
+  // Mở nút ngay lập tức; không chờ chuỗi âm thanh kết thúc.
   nextQuestionButton.disabled = false;
   nextQuestionButton.textContent = currentQuestionNumber === TOTAL_QUESTIONS
     ? "Xem kết quả →"
     : "Câu tiếp theo →";
+  nextQuestionButton.scrollIntoView({ block: "nearest", behavior: "smooth" });
 
-  playSoundButton.disabled = false;
-  isProcessingAnswer = false;
+  // Phát âm thanh nền; người dùng có thể chuyển câu ngay.
+  playFeedbackSequence(selectedItem, true, sequenceId).finally(() => {
+    answerBusy = false;
+  });
+}
+
+function playQuestionSound() {
+  if (!currentCorrectItem || answerBusy) return;
+  stopActiveAudio();
+  const sequenceId = audioSequence;
+  playFeedback.textContent = `Đang phát âm chữ ${currentCorrectItem.upper}`;
+  playAudio(getAudio(currentCorrectItem.sound), sequenceId).then((ok) => {
+    if (ok && !questionAnswered) playFeedback.textContent = "Sóc hãy chọn hình đúng nhé!";
+  });
+}
+
+function preloadNextQuestionAssets() {
+  const next = playQuestionPool[currentQuestionNumber];
+  if (!next) return;
+  preloadImage(next.image);
+  preloadAudio(next.sound);
+  preloadAudio(next.choiceSound || next.sound);
+}
+
+function createStarEffect(button) {
+  const rect = button.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  for (let index = 0; index < 5; index += 1) {
+    const star = document.createElement("div");
+    star.className = "flyingStar";
+    star.textContent = "⭐";
+    star.style.left = `${centerX + (Math.random() - 0.5) * 140}px`;
+    star.style.top = `${centerY + (Math.random() - 0.5) * 40}px`;
+    star.style.animationDelay = `${index * 0.06}s`;
+    starEffectLayer.appendChild(star);
+    window.setTimeout(() => star.remove(), 1300);
+  }
 }
 
 function goToNextQuestion() {
-  if (!questionAnswered || isProcessingAnswer) {
-    return;
-  }
+  if (!questionAnswered) return;
+  stopActiveAudio();
+  answerBusy = false;
 
   if (currentQuestionNumber >= TOTAL_QUESTIONS) {
     showPlayResult();
@@ -591,63 +387,31 @@ function goToNextQuestion() {
   createQuestion();
 }
 
-async function showPlayResult() {
-  const sequenceId = ++audioSequenceId;
-  stopCurrentAudio();
-
-  isProcessingAnswer = true;
-  questionAnswered = true;
-
-  answerGrid.innerHTML = "";
+function showPlayResult() {
+  stopActiveAudio();
+  answerGrid.replaceChildren();
   answerGrid.classList.add("hidden");
   resultPanel.classList.remove("hidden");
-
   resultScore.textContent = String(playScore);
   resultTotal.textContent = String(TOTAL_QUESTIONS);
   playInstructionElement.textContent = "Sóc đã hoàn thành thử thách!";
   playFeedback.textContent = getResultMessage(playScore);
-
   playSoundButton.disabled = true;
-  nextQuestionButton.disabled = true;
+  nextQuestionButton.disabled = false;
   nextQuestionButton.textContent = "Chơi lại ↻";
-
-  createFireworks(4700);
-  await speakPraise("Xuất sắc! Bé đã hoàn thành thử thách. Chúc mừng bé!");
-  await wait(160);
-
-  if (sequenceId === audioSequenceId) {
-    await playAudioSource(correctSound);
-  }
-
-  if (sequenceId === audioSequenceId) {
-    nextQuestionButton.disabled = false;
-    isProcessingAnswer = false;
-  }
+  questionAnswered = true;
 }
 
 function getResultMessage(score) {
-  if (score === TOTAL_QUESTIONS) {
-    return "Xuất sắc! Sóc đã trả lời đúng tất cả câu hỏi.";
-  }
-
-  if (score >= 8) {
-    return "Rất tốt! Sóc đã nhớ được nhiều chữ cái.";
-  }
-
-  if (score >= 5) {
-    return "Khá tốt! Sóc hãy luyện thêm một lượt nữa nhé.";
-  }
-
+  if (score === TOTAL_QUESTIONS) return "Xuất sắc! Sóc đã trả lời đúng tất cả câu hỏi.";
+  if (score >= 8) return "Rất tốt! Sóc đã nhớ được nhiều chữ cái.";
+  if (score >= 5) return "Khá tốt! Sóc hãy luyện thêm một lượt nữa nhé.";
   return "Sóc hãy quay lại phần Học chữ rồi thử lại nhé.";
 }
 
 function restartPlayMode() {
   openPlayMode();
 }
-
-/* =========================================================
-   SỰ KIỆN
-========================================================= */
 
 soundButton.addEventListener("click", playCurrentSound);
 letterButton.addEventListener("click", playCurrentSound);
@@ -659,29 +423,25 @@ homeButton.addEventListener("click", returnHome);
 playHomeButton.addEventListener("click", returnHome);
 playSoundButton.addEventListener("click", playQuestionSound);
 nextQuestionButton.addEventListener("click", () => {
-  const isResultScreen = !resultPanel.classList.contains("hidden");
-
-  if (isResultScreen) {
+  if (currentQuestionNumber >= TOTAL_QUESTIONS && resultPanel.classList.contains("hidden") === false) {
     restartPlayMode();
-  } else {
-    goToNextQuestion();
+    return;
   }
+  if (currentQuestionNumber >= TOTAL_QUESTIONS && questionAnswered) {
+    showPlayResult();
+    return;
+  }
+  goToNextQuestion();
 });
 
 showScreen(homeScreen);
 renderCurrentLetter();
-
-/* =========================================================
-   SERVICE WORKER
-========================================================= */
+preloadAudio("sounds/correct.mp3");
+preloadAudio("sounds/wrong.mp3");
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js", {
-      scope: "./",
-      updateViaCache: "none"
-    }).catch((error) => {
-      console.warn("Không thể đăng ký Service Worker:", error);
-    });
+    navigator.serviceWorker.register("./service-worker.js", { updateViaCache: "none" })
+      .catch((error) => console.warn("Không thể đăng ký Service Worker:", error));
   });
 }
