@@ -998,3 +998,72 @@ img {
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   PHẢN HỒI ÂM THANH VÀ PHÁO HOA - V12
+========================================================= */
+
+.answerCard.is-speaking {
+  border-color: #f59e0b;
+  animation: speakingPulse 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes speakingPulse {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.025);
+  }
+}
+
+.fireworksLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fireworkParticle {
+  position: absolute;
+  display: block;
+  font-size: clamp(22px, 5vw, 44px);
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  animation: fireworkBurst 1.15s ease-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes fireworkBurst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.25) rotate(0deg);
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(
+        calc(-50% + var(--firework-x)),
+        calc(-50% + var(--firework-y))
+      )
+      scale(1.25)
+      rotate(240deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .answerCard.is-speaking {
+    animation: none;
+  }
+
+  .fireworkParticle {
+    animation-duration: 0.3s;
+  }
+}
