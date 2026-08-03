@@ -3,8 +3,6 @@
 const alphabet = [
   {
     id: 1,
-    upper: "A",
-    lower: "a",
     fileCode: "a",
     word: " Cái áo",
     image: "images/a.webp",
@@ -15,8 +13,6 @@ const alphabet = [
   },
   {
     id: 2,
-    upper: "Ă",
-    lower: "ă",
     fileCode: "aw",
     word: "Ăn cơm",
     image: "images/aw.webp",
@@ -27,10 +23,8 @@ const alphabet = [
   },
   {
     id: 3,
-    upper: "Â",
-    lower: "â",
     fileCode: "aa",
-    word: " Cái ấm nước",
+    word: " Cái ấm",
     image: "images/aa.webp",
     sound: "sounds/aa.mp3",
     choiceSound: "sounds/choices/aa.mp3",
@@ -39,8 +33,6 @@ const alphabet = [
   },
   {
     id: 4,
-    upper: "B",
-    lower: "b",
     fileCode: "b",
     word: "Quả bóng",
     image: "images/b.webp",
@@ -51,8 +43,6 @@ const alphabet = [
   },
   {
     id: 5,
-    upper: "C",
-    lower: "c",
     fileCode: "c",
     word: "Con cá",
     image: "images/c.webp",
@@ -63,8 +53,6 @@ const alphabet = [
   },
   {
     id: 6,
-    upper: "D",
-    lower: "d",
     fileCode: "d",
     word: "Con dê",
     image: "images/d.webp",
@@ -75,10 +63,8 @@ const alphabet = [
   },
   {
     id: 7,
-    upper: "Đ",
-    lower: "đ",
     fileCode: "dd",
-    word: "Cái bóng đèn",
+    word: "Bóng đèn",
     image: "images/dd.webp",
     sound: "sounds/dd.mp3",
     choiceSound: "sounds/choices/dd.mp3",
@@ -87,8 +73,6 @@ const alphabet = [
   },
   {
     id: 8,
-    upper: "E",
-    lower: "e",
     fileCode: "e",
     word: "Em bé",
     image: "images/e.webp",
@@ -99,8 +83,6 @@ const alphabet = [
   },
   {
     id: 9,
-    upper: "Ê",
-    lower: "ê",
     fileCode: "ee",
     word: "Con ếch",
     image: "images/ee.webp",
@@ -111,8 +93,6 @@ const alphabet = [
   },
   {
     id: 10,
-    upper: "G",
-    lower: "g",
     fileCode: "g",
     word: "Con gà",
     image: "images/g.webp",
@@ -123,8 +103,6 @@ const alphabet = [
   },
   {
     id: 11,
-    upper: "H",
-    lower: "h",
     fileCode: "h",
     word: "Bông hoa",
     image: "images/h.webp",
@@ -135,8 +113,6 @@ const alphabet = [
   },
   {
     id: 12,
-    upper: "I",
-    lower: "i",
     fileCode: "i",
     word: "Cái máy in",
     image: "images/i.webp",
@@ -147,8 +123,6 @@ const alphabet = [
   },
   {
     id: 13,
-    upper: "K",
-    lower: "k",
     fileCode: "k",
     word: "Cái kẹo",
     image: "images/k.webp",
@@ -159,8 +133,6 @@ const alphabet = [
   },
   {
     id: 14,
-    upper: "L",
-    lower: "l",
     fileCode: "l",
     word: "Cái lá cây",
     image: "images/l.webp",
@@ -171,8 +143,6 @@ const alphabet = [
   },
   {
     id: 15,
-    upper: "M",
-    lower: "m",
     fileCode: "m",
     word: "Con mèo",
     image: "images/m.webp",
@@ -183,10 +153,8 @@ const alphabet = [
   },
   {
     id: 16,
-    upper: "N",
-    lower: "n",
     fileCode: "n",
-    word: "Cái nón",
+    word: "Quả na",
     image: "images/n.webp",
     sound: "sounds/n.mp3",
     choiceSound: "sounds/choices/n.mp3",
@@ -195,8 +163,6 @@ const alphabet = [
   },
   {
     id: 17,
-    upper: "O",
-    lower: "o",
     fileCode: "o",
     word: "Con ong",
     image: "images/o.webp",
@@ -207,8 +173,6 @@ const alphabet = [
   },
   {
     id: 18,
-    upper: "Ô",
-    lower: "ô",
     fileCode: "oo",
     word: "Cái Ô",
     image: "images/oo.webp",
@@ -219,8 +183,6 @@ const alphabet = [
   },
   {
     id: 19,
-    upper: "Ơ",
-    lower: "ơ",
     fileCode: "ow",
     word: "Quả ớt",
     image: "images/ow.webp",
@@ -231,8 +193,6 @@ const alphabet = [
   },
   {
     id: 20,
-    upper: "P",
-    lower: "p",
     fileCode: "p",
     word: "Quả pin",
     image: "images/p.webp",
@@ -243,8 +203,6 @@ const alphabet = [
   },
   {
     id: 21,
-    upper: "Q",
-    lower: "q",
     fileCode: "q",
     word: "Cây quất",
     image: "images/q.webp",
@@ -255,8 +213,6 @@ const alphabet = [
   },
   {
     id: 22,
-    upper: "R",
-    lower: "r",
     fileCode: "r",
     word: "Con rùa",
     image: "images/r.webp",
@@ -267,8 +223,6 @@ const alphabet = [
   },
   {
     id: 23,
-    upper: "S",
-    lower: "s",
     fileCode: "s",
     word: "Con sư tử",
     image: "images/s.webp",
@@ -279,8 +233,6 @@ const alphabet = [
   },
   {
     id: 24,
-    upper: "T",
-    lower: "t",
     fileCode: "t",
     word: "Quả táo",
     image: "images/t.webp",
@@ -291,8 +243,6 @@ const alphabet = [
   },
   {
     id: 25,
-    upper: "U",
-    lower: "u",
     fileCode: "u",
     word: "Cái ủng",
     image: "images/u.webp",
@@ -303,8 +253,6 @@ const alphabet = [
   },
   {
     id: 26,
-    upper: "Ư",
-    lower: "ư",
     fileCode: "uw",
     word: "Bé ươm cây",
     image: "images/uw.webp",
@@ -315,8 +263,6 @@ const alphabet = [
   },
   {
     id: 27,
-    upper: "V",
-    lower: "v",
     fileCode: "v",
     word: "Con voi",
     image: "images/v.webp",
@@ -327,8 +273,6 @@ const alphabet = [
   },
   {
     id: 28,
-    upper: "X",
-    lower: "x",
     fileCode: "x",
     word: "Xe ô tô",
     image: "images/x.webp",
@@ -339,8 +283,6 @@ const alphabet = [
   },
   {
     id: 29,
-    upper: "Y",
-    lower: "y",
     fileCode: "y",
     word: "Cô Y tá",
     image: "images/y.webp",

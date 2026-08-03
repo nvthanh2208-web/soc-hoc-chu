@@ -11,8 +11,6 @@ const homeButton = byId("homeButton");
 const playHomeButton = byId("playHomeButton");
 const currentNumberElement = byId("currentNumber");
 const totalNumberElement = byId("totalNumber");
-const letterButton = byId("letterButton");
-const smallLetterElement = byId("smallLetter");
 const letterImage = byId("letterImage");
 const wordElement = byId("word");
 const soundButton = byId("soundButton");
@@ -155,8 +153,6 @@ function renderCurrentLetter() {
   const item = getCurrentLetter();
   currentNumberElement.textContent = String(currentIndex + 1);
   totalNumberElement.textContent = String(alphabet.length);
-  letterButton.textContent = item.upper;
-  smallLetterElement.textContent = item.lower;
   letterImage.src = item.image;
   letterImage.alt = item.word.trim();
   wordElement.textContent = item.word.trim();
@@ -469,7 +465,6 @@ function restartPlayMode() {
 }
 
 soundButton.addEventListener("click", playCurrentSound);
-letterButton.addEventListener("click", playCurrentSound);
 previousButton.addEventListener("click", showPreviousLetter);
 nextButton.addEventListener("click", showNextLetter);
 learnModeButton.addEventListener("click", openLearnMode);
