@@ -324,7 +324,7 @@ async function checkPlayAnswer(button, selectedItem) {
   playScoreElement.textContent = String(playScore);
   button.classList.add("correct");
   createStarEffect(button);
-  playFeedback.textContent = `Sóc chọn đúng rồi! ${currentCorrectItem.upper} như ${currentCorrectItem.word.trim()}.`;
+  playFeedback.textContent = `Sóc chọn đúng rồi!`;
 
   // Mở nút ngay lập tức; không chờ chuỗi âm thanh kết thúc.
   nextQuestionButton.disabled = false;
