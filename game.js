@@ -178,7 +178,7 @@ function playCurrentSound() {
   stopActiveAudio();
   const sequenceId = audioSequence;
   const audio = getAudio(item.sound);
-  statusMessage.textContent = `Đang phát âm chữ ${item.upper}`;
+  statusMessage.textContent = `Đang phát âm chữ cái`;
   playAudio(audio, sequenceId).then((ok) => {
     if (ok) statusMessage.textContent = `${item.upper} như ${item.word.trim()}`;
   });
