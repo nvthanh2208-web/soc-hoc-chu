@@ -344,7 +344,7 @@ function playQuestionSound({ automatic = false } = {}) {
 
   stopActiveAudio();
   const sequenceId = audioSequence;
-  playFeedback.textContent = `Đang phát âm chữ ${currentCorrectItem.upper}`;
+  playFeedback.textContent = `Đang phát âm chữ cái`;
 
   playAudio(getAudio(currentCorrectItem.sound), sequenceId).then((ok) => {
     if (ok && !questionAnswered) {
